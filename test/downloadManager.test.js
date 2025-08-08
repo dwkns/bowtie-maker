@@ -296,6 +296,84 @@ describe('DownloadManager', () => {
       // Verify XMLSerializer was called
       expect(mockSerializeToString).toHaveBeenCalled();
     });
+
+    it('should preserve segments in cleaned SVG', () => {
+      const svg = document.querySelector('svg');
+      
+      // Add a selection highlight to simulate selected segment
+      const segment = svg.querySelector('#segment-1');
+      segment.setAttribute('stroke', '#FF6600');
+      segment.setAttribute('stroke-width', '5');
+      
+      const cleanedSvg = downloadManager.cleanSVG(svg);
+      
+      // Verify segment still exists
+      const cleanedSegment = cleanedSvg.querySelector('#segment-1');
+      expect(cleanedSegment).toBeTruthy();
+      
+      // Verify segment has fill attribute (original styling)
+      expect(cleanedSegment.getAttribute('fill')).toBe('#FF6B6B');
+      
+      // Verify orange stroke was removed
+      expect(cleanedSegment.getAttribute('stroke')).toBeFalsy();
+      expect(cleanedSegment.getAttribute('stroke-width')).toBeFalsy();
+    });
+
+    it('should not remove non-orange stroke attributes', () => {
+      const svg = document.querySelector('svg');
+      
+      // Add a non-orange stroke to simulate original styling
+      const segment = svg.querySelector('#segment-1');
+      segment.setAttribute('stroke', '#000000');
+      segment.setAttribute('stroke-width', '2');
+      
+      const cleanedSvg = downloadManager.cleanSVG(svg);
+      
+      // Verify segment still exists
+      const cleanedSegment = cleanedSvg.querySelector('#segment-1');
+      expect(cleanedSegment).toBeTruthy();
+      
+      // Verify non-orange stroke was preserved
+      expect(cleanedSegment.getAttribute('stroke')).toBe('#000000');
+      expect(cleanedSegment.getAttribute('stroke-width')).toBe('2');
+    });
+
+    it('should handle revert-then-select-then-export scenario', () => {
+      // Simulate the scenario: revert to original, select segment, then export
+      const svg = document.querySelector('svg');
+      
+      // First, ensure we have all segments
+      const allSegments = svg.querySelectorAll('[id^="segment-"]');
+      expect(allSegments.length).toBeGreaterThan(0);
+      
+      // Simulate selecting a segment (add orange stroke)
+      const selectedSegment = svg.querySelector('#segment-1');
+      selectedSegment.setAttribute('stroke', '#FF6600');
+      selectedSegment.setAttribute('stroke-width', '5');
+      
+      // Simulate the export process
+      const cleanSvg = downloadManager.cleanSVG(svg);
+      
+      // Verify all segments are still present
+      const cleanedSegments = cleanSvg.querySelectorAll('[id^="segment-"]');
+      expect(cleanedSegments.length).toBe(allSegments.length);
+      
+      // Verify the selected segment is still there
+      const cleanedSelectedSegment = cleanSvg.querySelector('#segment-1');
+      expect(cleanedSelectedSegment).toBeTruthy();
+      
+      // Verify the segment has its original fill
+      expect(cleanedSelectedSegment.getAttribute('fill')).toBe('#FF6B6B');
+      
+      // Verify the orange stroke was removed
+      expect(cleanedSelectedSegment.getAttribute('stroke')).toBeFalsy();
+      expect(cleanedSelectedSegment.getAttribute('stroke-width')).toBeFalsy();
+      
+      // Verify all other segments are also present
+      const segmentIds = Array.from(cleanedSegments).map(s => s.id);
+      expect(segmentIds).toContain('segment-1');
+      expect(segmentIds).toContain('segment-2');
+    });
   });
 
   describe('SVG targeting', () => {

@@ -22,15 +22,34 @@ class DownloadManager {
   cleanSVG(svg) {
     const svgClone = svg.cloneNode(true);
     
-    // Remove selection highlights
-    const selectionElements = svgClone.querySelectorAll('#text-highlight-underline, [style*="stroke: rgb(255, 102, 0)"], [style*="stroke: #FF6600"]');
+    // Remove selection highlights (orange underlines)
+    const selectionElements = svgClone.querySelectorAll('#text-highlight-underline');
     selectionElements.forEach(element => element.remove());
     
-    // Remove any stroke styles from segments that might be highlighted
+    // Remove orange stroke styles from segments that might be highlighted
     const segments = svgClone.querySelectorAll('[id^="segment-"]');
     segments.forEach(segment => {
-      segment.removeAttribute('stroke');
-      segment.removeAttribute('stroke-width');
+      const stroke = segment.getAttribute('stroke');
+      const strokeWidth = segment.getAttribute('stroke-width');
+      
+      // Only remove stroke if it's the orange selection color
+      if (stroke === '#FF6600' || stroke === 'rgb(255, 102, 0)') {
+        segment.removeAttribute('stroke');
+        segment.removeAttribute('stroke-width');
+      }
+    });
+    
+    // Remove orange stroke styles from text elements that might be highlighted
+    const textElements = svgClone.querySelectorAll('[id^="label-segment-"], [id^="title-"]');
+    textElements.forEach(textElement => {
+      const stroke = textElement.getAttribute('stroke');
+      const strokeWidth = textElement.getAttribute('stroke-width');
+      
+      // Only remove stroke if it's the orange selection color
+      if (stroke === '#FF6600' || stroke === 'rgb(255, 102, 0)') {
+        textElement.removeAttribute('stroke');
+        textElement.removeAttribute('stroke-width');
+      }
     });
     
     return svgClone;
@@ -43,6 +62,12 @@ class DownloadManager {
     if (svg) {
       // Clean the SVG by removing selection highlights
       const cleanSvg = this.cleanSVG(svg);
+      
+      // Debug: Check if segments are present
+      const segments = cleanSvg.querySelectorAll('[id^="segment-"]');
+      console.log(`Exporting SVG with ${segments.length} segments:`, 
+        Array.from(segments).map(s => ({ id: s.id, fill: s.getAttribute('fill') }))
+      );
       
       // Create a new SVG element with proper namespace
       const svgString = new XMLSerializer().serializeToString(cleanSvg);
@@ -69,6 +94,12 @@ class DownloadManager {
     if (svg) {
       // Clean the SVG by removing selection highlights
       const cleanSvg = this.cleanSVG(svg);
+      
+      // Debug: Check if segments are present
+      const segments = cleanSvg.querySelectorAll('[id^="segment-"]');
+      console.log(`Exporting PNG with ${segments.length} segments:`, 
+        Array.from(segments).map(s => ({ id: s.id, fill: s.getAttribute('fill') }))
+      );
       
       // Get original dimensions
       const originalWidth = parseInt(svg.getAttribute('width') || '800');
