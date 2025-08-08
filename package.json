@@ -1,0 +1,25 @@
+{
+  "name": "svg-edit",
+  "version": "1.0.0",
+  "description": "SVG Editor with color management",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "eleventy --serve",
+    "build": "eleventy",
+    "test": "vitest run",
+    "test:coverage": "vitest --coverage",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "eleventy-plugin-tailwindcss-4": "^2.0.1",
+    "jsdom": "^24.0.0",
+    "vitest": "^2.1.8"
+  }
+}

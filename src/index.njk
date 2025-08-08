@@ -1,0 +1,86 @@
+---
+layout: base.njk
+title: SVG Editor
+---
+
+<div>
+  <!-- Header with title and buttons -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">SVG Editor</h1>
+    <div class="flex items-center space-x-3">
+      <button id="revert-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+        </svg>
+        <span>Revert to Original</span>
+      </button>
+      <button id="download-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span>Download SVG</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- SVG Container -->
+  <div id="svg-container" class="flex justify-center mb-4">
+    
+
+    <svg width="800" height="357" viewBox="0 0 800 357" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path id="segment-1" d="M787.185 0L684.852 33.9208C677.241 82.0716 673.435 130.44 673.435 179.025C673.435 227.01 677.147 274.475 684.572 321.42L787.185 357C794.986 317.555 798.926 258.724 799.005 180.508V178.131C799.005 98.7291 795.065 39.3519 787.185 0Z" fill="#837C67"/>
+      <path id="segment-2" d="M672.806 39.106L571.181 72.7921C567.02 108.478 564.939 144.282 564.939 180.205C564.939 214.777 566.866 249.079 570.72 283.11L672.471 318.392C665.073 274.17 661.374 228.108 661.374 180.205C661.374 133.302 665.075 86.9424 672.477 41.1269L672.806 39.106Z" fill="#837C67"/>
+      <path id="segment-3" d="M558.596 77.5813L434.389 118.753C456.046 130.496 470.751 153.422 470.751 179.781C470.751 204.315 458.012 225.875 438.785 238.211L558.023 279.556C554.342 247.599 552.502 214.726 552.502 180.936C552.502 146.186 554.533 111.734 558.596 77.5813Z" fill="#837C67"/>
+      <circle id="segment-middle" cx="400.316" cy="178.5" r="57.4205" fill="#E8C04E"/>
+      <path id="segment-4" d="M241.305 77.5813L365.512 118.753C343.855 130.496 329.15 153.422 329.15 179.781C329.15 204.315 341.889 225.875 361.116 238.211L241.878 279.556C245.559 247.599 247.4 214.726 247.4 180.936C247.4 146.186 245.368 111.734 241.305 77.5813Z" fill="#837C67"/>
+      <path id="segment-5" d="M127.095 39.106L228.72 72.7921C232.881 108.478 234.962 144.282 234.962 180.205C234.962 214.777 233.035 249.079 229.181 283.11L127.43 318.392C134.828 274.17 138.527 228.108 138.527 180.205C138.527 133.302 134.826 86.9424 127.424 41.1269L127.095 39.106Z" fill="#837C67"/>
+      <path id="segment-6" d="M12.7159 0L115.049 33.9208C122.66 82.0716 126.466 130.44 126.466 179.025C126.466 227.01 122.754 274.475 115.329 321.42L12.7159 357C4.91476 317.555 0.975189 258.724 0.895996 180.508V178.131C0.895996 98.7291 4.83596 39.3519 12.7159 0Z" fill="#837C67"/>
+    </svg>
+      
+
+  </div>
+  
+  <!-- Segment Editors Container -->
+  <div id="segment-editors" class="max-w-4xl mx-auto">
+    <!-- Segment editors will be dynamically generated here -->
+  </div>
+  
+  <!-- Mode Toggle Control -->
+  <div class="flex justify-center mt-6">
+    <div class="flex items-center space-x-3">
+      <span class="text-sm font-medium text-gray-700">Individual</span>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="mode-toggle" class="sr-only peer" />
+        <div class="w-11 h-6 bg-blue-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+      </label>
+      <span class="text-sm font-medium text-gray-700">All</span>
+    </div>
+  </div>
+  
+                <!-- Hidden Template for Segment Editor -->
+              <template id="segment-editor-template" style="display: none;">
+                <div class="segment-editor p-2 transition-all duration-300 ease-in-out">
+                  <div class="text-center">
+
+                    <input 
+                      type="color" 
+                      class="w-16 h-10 rounded border-2 cursor-pointer shadow-sm hover:border-gray-400 hover:shadow-md focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-300 transition-all duration-200 segment-color-input"
+                      style="background-color: var(--color-picker-bg, #837C67); border-color: var(--color-picker-border, #837C67);"
+                      value="#837C67"
+                      data-segment-id=""
+                    />
+                    <div class="flex items-center justify-center mt-3">
+                      <div class="flex items-center border border-gray-300 rounded bg-gray-50">
+                        <span class="text-xs text-gray-500 font-mono px-2 py-1 border-r border-gray-300 bg-gray-100">#</span>
+                        <input 
+                          type="text" 
+                          class="hex-input w-14 h-6 text-xs text-center font-mono border-0 bg-transparent px-1 focus:outline-none"
+                          placeholder="000000"
+                          data-segment-id=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+</div> 
