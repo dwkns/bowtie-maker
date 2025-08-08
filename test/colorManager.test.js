@@ -119,7 +119,7 @@ describe('ColorManager', () => {
   });
 
   describe('updateColorPickerBackground', () => {
-    it('should update color picker background and border', () => {
+    it('should do nothing (method kept for backward compatibility)', () => {
       const mockColorInput = {
         style: {
           setProperty: vi.fn()
@@ -128,8 +128,8 @@ describe('ColorManager', () => {
       
       colorManager.updateColorPickerBackground(mockColorInput, '#FF0000');
       
-      expect(mockColorInput.style.setProperty).toHaveBeenCalledWith('--color-picker-bg', '#FF0000');
-      expect(mockColorInput.style.setProperty).toHaveBeenCalledWith('--color-picker-border', '#FF0000');
+      // Method no longer sets properties, just returns without error
+      expect(mockColorInput.style.setProperty).not.toHaveBeenCalled();
     });
 
     it('should handle null color input gracefully', () => {

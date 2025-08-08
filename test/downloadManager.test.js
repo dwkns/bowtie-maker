@@ -13,11 +13,13 @@ describe('DownloadManager', () => {
   beforeEach(() => {
     // Mock DOM
     document.body.innerHTML = `
-      <button id="download-btn">Download</button>
+      <button id="download-btn">Download SVG</button>
+      <button id="download-png-btn">Download PNG</button>
       <div id="svg-container">
         <svg>
           <rect id="segment-1" fill="#FF6B6B"/>
           <rect id="segment-2" fill="#4ECDC4"/>
+          <line id="text-highlight-underline" stroke="#FF6600"/>
         </svg>
       </div>
     `;
@@ -64,25 +66,64 @@ describe('DownloadManager', () => {
   });
 
   describe('constructor', () => {
-    it('should initialize download button', () => {
+    it('should initialize download buttons', () => {
       expect(document.getElementById('download-btn')).toBeTruthy();
+      expect(document.getElementById('download-png-btn')).toBeTruthy();
     });
   });
 
-  describe('initializeDownloadButton', () => {
-    it('should add click event listener to download button', () => {
-      const downloadBtn = document.getElementById('download-btn');
-      const addEventListenerSpy = vi.spyOn(downloadBtn, 'addEventListener');
+  describe('initializeDownloadButtons', () => {
+    it('should add click event listeners to download buttons', () => {
+      const downloadSvgBtn = document.getElementById('download-btn');
+      const downloadPngBtn = document.getElementById('download-png-btn');
+      const addEventListenerSpy1 = vi.spyOn(downloadSvgBtn, 'addEventListener');
+      const addEventListenerSpy2 = vi.spyOn(downloadPngBtn, 'addEventListener');
       
-      downloadManager.initializeDownloadButton();
+      downloadManager.initializeDownloadButtons();
       
-      expect(addEventListenerSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(addEventListenerSpy1).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(addEventListenerSpy2).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
-    it('should handle missing download button gracefully', () => {
+    it('should handle missing download buttons gracefully', () => {
       document.getElementById('download-btn').remove();
+      document.getElementById('download-png-btn').remove();
       
-      expect(() => downloadManager.initializeDownloadButton()).not.toThrow();
+      expect(() => downloadManager.initializeDownloadButtons()).not.toThrow();
+    });
+  });
+
+  describe('cleanSVG', () => {
+    it('should remove selection highlights from SVG', () => {
+      const svg = document.querySelector('svg');
+      const originalSvg = svg.cloneNode(true);
+      
+      // Verify highlight element exists before cleaning
+      expect(svg.querySelector('#text-highlight-underline')).toBeTruthy();
+      
+      const cleanedSvg = downloadManager.cleanSVG(svg);
+      
+      // Verify highlight element was removed
+      expect(cleanedSvg.querySelector('#text-highlight-underline')).toBeFalsy();
+      
+      // Verify original SVG was not modified
+      expect(svg.querySelector('#text-highlight-underline')).toBeTruthy();
+    });
+
+    it('should remove stroke attributes from segments', () => {
+      const svg = document.querySelector('svg');
+      const segment = svg.querySelector('#segment-1');
+      
+      // Add stroke attributes to simulate selection
+      segment.setAttribute('stroke', '#FF6600');
+      segment.setAttribute('stroke-width', '5');
+      
+      const cleanedSvg = downloadManager.cleanSVG(svg);
+      const cleanedSegment = cleanedSvg.querySelector('#segment-1');
+      
+      // Verify stroke attributes were removed
+      expect(cleanedSegment.getAttribute('stroke')).toBeFalsy();
+      expect(cleanedSegment.getAttribute('stroke-width')).toBeFalsy();
     });
   });
 
@@ -92,7 +133,7 @@ describe('DownloadManager', () => {
       const addEventListenerSpy = vi.spyOn(downloadBtn, 'addEventListener');
       
       // Simulate click event
-      downloadManager.initializeDownloadButton();
+      downloadManager.initializeDownloadButtons();
       const clickHandler = addEventListenerSpy.mock.calls[0][1];
       clickHandler();
       
@@ -131,7 +172,7 @@ describe('DownloadManager', () => {
       const addEventListenerSpy = vi.spyOn(downloadBtn, 'addEventListener');
       
       // Simulate click event
-      downloadManager.initializeDownloadButton();
+      downloadManager.initializeDownloadButtons();
       const clickHandler = addEventListenerSpy.mock.calls[0][1];
       clickHandler();
       
@@ -147,12 +188,113 @@ describe('DownloadManager', () => {
       const addEventListenerSpy = vi.spyOn(downloadBtn, 'addEventListener');
       
       // Simulate click event
-      downloadManager.initializeDownloadButton();
+      downloadManager.initializeDownloadButtons();
       const clickHandler = addEventListenerSpy.mock.calls[0][1];
       clickHandler();
       
       // Verify createObjectURL was called
       expect(global.URL.createObjectURL).toHaveBeenCalled();
+    });
+  });
+
+  describe('downloadPNG', () => {
+    it('should handle missing SVG element gracefully for PNG', () => {
+      document.querySelector('svg').remove();
+      
+      expect(() => downloadManager.downloadPNG()).not.toThrow();
+    });
+
+    it('should calculate correct PNG dimensions', () => {
+      const svg = document.querySelector('svg');
+      svg.setAttribute('width', '800');
+      svg.setAttribute('height', '506');
+      
+      // Mock canvas and context
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: vi.fn().mockReturnValue({
+          fillStyle: '',
+          fillRect: vi.fn(),
+          drawImage: vi.fn(),
+          imageSmoothingEnabled: false,
+          imageSmoothingQuality: ''
+        }),
+        toBlob: vi.fn()
+      };
+      
+      // Mock Image
+      const mockImage = {
+        onload: null,
+        src: ''
+      };
+      
+      // Mock createElement
+      document.createElement = vi.fn()
+        .mockReturnValueOnce(mockCanvas) // canvas
+        .mockReturnValueOnce(mockImage); // image
+      
+      downloadManager.downloadPNG();
+      
+      // Verify canvas was created with 2x dimensions
+      expect(mockCanvas.width).toBe(1600); // 2x original width
+      expect(mockCanvas.height).toBe(1012); // 2x original height
+      
+      // Verify high-quality rendering was enabled
+      const mockContext = mockCanvas.getContext();
+      expect(mockContext.imageSmoothingEnabled).toBe(true);
+      expect(mockContext.imageSmoothingQuality).toBe('high');
+    });
+
+    it('should improve text rendering in SVG', () => {
+      const svg = document.querySelector('svg');
+      svg.setAttribute('width', '800');
+      svg.setAttribute('height', '506');
+      
+      // Mock XMLSerializer
+      const mockSerializeToString = vi.fn().mockReturnValue('<svg><text>Test</text></svg>');
+      global.XMLSerializer = class {
+        serializeToString() {
+          return mockSerializeToString();
+        }
+      };
+      
+      // Mock canvas and context
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: vi.fn().mockReturnValue({
+          fillStyle: '',
+          fillRect: vi.fn(),
+          drawImage: vi.fn()
+        }),
+        toBlob: vi.fn()
+      };
+      
+      // Mock Image
+      const mockImage = {
+        onload: null,
+        src: ''
+      };
+      
+      // Mock createElement and Blob
+      document.createElement = vi.fn()
+        .mockReturnValueOnce(mockCanvas) // canvas
+        .mockReturnValueOnce(mockImage); // image
+      
+      global.Blob = vi.fn().mockImplementation((content) => {
+        // Verify that the SVG string includes text rendering improvements
+        const svgString = content[0];
+        expect(svgString).toContain('text-rendering: optimizeLegibility');
+        expect(svgString).toContain('-webkit-font-smoothing: antialiased');
+        expect(svgString).toContain('-moz-osx-font-smoothing: grayscale');
+        return { type: 'image/svg+xml' };
+      });
+      
+      downloadManager.downloadPNG();
+      
+      // Verify XMLSerializer was called
+      expect(mockSerializeToString).toHaveBeenCalled();
     });
   });
 

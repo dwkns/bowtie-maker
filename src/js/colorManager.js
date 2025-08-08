@@ -49,33 +49,25 @@ class ColorManager {
 
   // Update color picker background and border using CSS custom properties
   updateColorPickerBackground(colorInput, color) {
-    if (colorInput) {
-      // Use CSS custom properties for dynamic colors while keeping Tailwind classes
-      colorInput.style.setProperty('--color-picker-bg', color);
-      colorInput.style.setProperty('--color-picker-border', color);
-    }
+    // No longer needed - color picker handles its own background
+    // This method is kept for backward compatibility but does nothing
   }
 
   // Update a single segment's color
-  updateSegmentColor(segmentId, newColor) {
+    updateSegmentColor(segmentId, newColor) {
     const segment = document.getElementById(segmentId);
     if (segment) {
       segment.setAttribute('fill', newColor);
     }
-    
-    // Update the color picker for this segment
-    const editorContainer = document.querySelector(`[data-segment-id="${segmentId}"]`).closest('.segment-editor');
-    if (editorContainer) {
-      const colorInput = editorContainer.querySelector('.segment-color-input');
-      if (colorInput) {
-        colorInput.value = newColor;
-        this.updateColorPickerBackground(colorInput, newColor);
-      }
-    }
-    
+
     // Update label color for optimal readability
     if (window.labelManager) {
       window.labelManager.updateLabelColor(segmentId, newColor);
+    }
+
+    // Notify change tracker
+    if (window.changeTracker) {
+      window.changeTracker.updateColor(segmentId, newColor);
     }
   }
 

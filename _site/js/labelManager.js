@@ -17,15 +17,23 @@ class LabelManager {
   }
 
   initializeLabels() {
-    // Load saved labels or use defaults
+    // Don't overwrite SVG content on initialization
+    // The SVG already contains the correct text content
+    // Only initialize if there are saved labels to restore
     const savedLabels = this.loadLabels();
-    Object.keys(this.defaultLabels).forEach(segmentId => {
-      const labelElement = document.getElementById(`label-${segmentId}`);
-      if (labelElement) {
-        const labelText = savedLabels[segmentId] || this.defaultLabels[segmentId];
-        labelElement.textContent = labelText;
-      }
-    });
+    if (Object.keys(savedLabels).length > 0) {
+      Object.keys(savedLabels).forEach(segmentId => {
+        const labelElement = document.getElementById(`label-${segmentId}`);
+        if (labelElement) {
+          const tspan = labelElement.querySelector('tspan');
+          if (tspan) {
+            tspan.textContent = savedLabels[segmentId];
+          } else {
+            labelElement.textContent = savedLabels[segmentId];
+          }
+        }
+      });
+    }
   }
 
   updateLabel(segmentId, newLabel) {
@@ -35,6 +43,11 @@ class LabelManager {
       labelElement.textContent = newLabel || '';
     }
     this.saveLabels();
+
+    // Notify change tracker
+    if (window.changeTracker) {
+      window.changeTracker.updateLabel(segmentId, newLabel || '');
+    }
   }
 
   updateAllLabels(newLabel) {
@@ -46,7 +59,11 @@ class LabelManager {
 
   getLabel(segmentId) {
     const labelElement = document.getElementById(`label-${segmentId}`);
-    return labelElement ? labelElement.textContent : this.defaultLabels[segmentId];
+    if (labelElement) {
+      const tspan = labelElement.querySelector('tspan');
+      return tspan ? tspan.textContent : labelElement.textContent || '';
+    }
+    return '';
   }
 
   saveLabels() {
@@ -54,7 +71,8 @@ class LabelManager {
     Object.keys(this.defaultLabels).forEach(segmentId => {
       const labelElement = document.getElementById(`label-${segmentId}`);
       if (labelElement) {
-        labels[segmentId] = labelElement.textContent;
+        const tspan = labelElement.querySelector('tspan');
+        labels[segmentId] = tspan ? tspan.textContent : labelElement.textContent || '';
       }
     });
     localStorage.setItem(this.storageKey, JSON.stringify(labels));
