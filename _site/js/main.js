@@ -3,13 +3,18 @@ import ColorManager from './colorManager.js';
 import SegmentEditor from './segmentEditor.js';
 import DownloadManager from './downloadManager.js';
 import ModeToggle from './modeToggle.js';
+import LabelManager from './labelManager.js';
 
 class SVGEditor {
   constructor() {
     this.colorManager = new ColorManager();
-    this.segmentEditor = new SegmentEditor(this.colorManager);
+    this.labelManager = new LabelManager();
+    this.segmentEditor = new SegmentEditor(this.colorManager, this.labelManager);
     this.downloadManager = new DownloadManager();
-    this.modeToggle = new ModeToggle(this.colorManager, this.segmentEditor);
+    this.modeToggle = new ModeToggle(this.colorManager, this.segmentEditor, this.labelManager);
+    
+    // Make labelManager available globally for color updates
+    window.labelManager = this.labelManager;
     
     this.initialize();
   }
@@ -33,6 +38,9 @@ class SVGEditor {
     
     // Initialize revert button
     this.initializeRevertButton();
+    
+    // Initialize label colors for optimal readability
+    this.labelManager.updateAllLabelColors();
   }
 
   // Initialize revert button
@@ -41,8 +49,11 @@ class SVGEditor {
     if (revertBtn) {
       revertBtn.addEventListener('click', () => {
         const originalColors = this.colorManager.revertToOriginal();
+        this.labelManager.resetToDefaults();
         this.segmentEditor.generateSegmentEditors();
         this.segmentEditor.updateRevertButtonVisibility();
+        // Update label colors after revert
+        this.labelManager.updateAllLabelColors();
       });
     }
   }

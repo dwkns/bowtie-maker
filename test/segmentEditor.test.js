@@ -51,9 +51,9 @@ describe('SegmentEditor', () => {
       const colorInputs = document.querySelectorAll('.segment-color-input');
       expect(colorInputs).toHaveLength(3);
       
-      // With the new sorting, segment-1 should be last (rightmost)
-      expect(colorInputs[2].value).toBe('#FF6B6B');
-      expect(colorInputs[2].getAttribute('data-segment-id')).toBe('segment-1');
+      // With the new sorting, segment-1 should be first (leftmost)
+      expect(colorInputs[0].value).toBe('#FF6B6B');
+      expect(colorInputs[0].getAttribute('data-segment-id')).toBe('segment-1');
     });
 
     it('should set up hex inputs correctly', () => {
@@ -62,10 +62,10 @@ describe('SegmentEditor', () => {
       const hexInputs = document.querySelectorAll('.hex-input');
       expect(hexInputs).toHaveLength(3);
       
-      // With the new sorting, segment-1 should be last (rightmost)
-      expect(hexInputs[2].value).toBe('FF6B6B');
-      expect(hexInputs[2].getAttribute('data-segment-id')).toBe('segment-1');
-      expect(hexInputs[2].dataset.lastValidValue).toBe('FF6B6B');
+      // With the new sorting, segment-1 should be first (leftmost)
+      expect(hexInputs[0].value).toBe('FF6B6B');
+      expect(hexInputs[0].getAttribute('data-segment-id')).toBe('segment-1');
+      expect(hexInputs[0].dataset.lastValidValue).toBe('FF6B6B');
     });
 
     it('should handle missing template gracefully', () => {

@@ -1,8 +1,9 @@
 // Mode Toggle Module - Following NN/g Guidelines
 class ModeToggle {
-  constructor(colorManager, segmentEditor) {
+  constructor(colorManager, segmentEditor, labelManager) {
     this.colorManager = colorManager;
     this.segmentEditor = segmentEditor;
+    this.labelManager = labelManager;
     this.currentMode = 'individual'; // Default to individual mode
     this.initializeToggle();
   }
@@ -52,18 +53,21 @@ class ModeToggle {
               class="w-16 h-10 rounded border-2 cursor-pointer shadow-sm hover:border-gray-400 hover:shadow-md focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-300 transition-all duration-200 segment-color-input-all"
               style="background-color: var(--color-picker-bg, ${currentColor}); border-color: var(--color-picker-border, ${currentColor});"
               value="${currentColor}"
+              tabindex="1"
             />
-            <div class="flex items-center justify-center mt-3">
-              <div class="flex items-center border border-gray-300 rounded bg-gray-50">
-                <span class="text-xs text-gray-500 font-mono px-2 py-1 border-r border-gray-300 bg-gray-100">#</span>
-                <input 
-                  type="text" 
-                  class="hex-input-all w-14 h-6 text-xs text-center font-mono border-0 bg-transparent px-1 focus:outline-none"
-                  placeholder="000000"
-                  value="${currentColor.toUpperCase().replace('#', '')}"
-                />
+                          <div class="flex items-center justify-center mt-3">
+                <div class="flex items-center border border-gray-300 rounded bg-gray-50">
+                  <span class="text-xs text-gray-500 font-mono px-2 py-1 border-r border-gray-300 bg-gray-100">#</span>
+                  <input 
+                    type="text" 
+                    class="hex-input-all w-14 h-6 text-xs text-center font-mono border-0 bg-transparent px-1 focus:outline-none text-black"
+                    placeholder="000000"
+                    value="${currentColor.toUpperCase().replace('#', '')}"
+                    tabindex="2"
+                  />
+                </div>
               </div>
-            </div>
+
           </div>
         </div>
       </div>
@@ -95,6 +99,7 @@ class ModeToggle {
         this.colorManager.updateAllSegments(newColor);
         this.updateAllModeHexInput(newColor);
         this.colorManager.updateColorPickerBackground(colorInput, newColor);
+        this.labelManager.updateAllLabelColors();
         this.colorManager.saveState();
       });
     }
@@ -107,6 +112,7 @@ class ModeToggle {
           this.colorManager.updateAllSegments(fullHexValue);
           this.updateAllModeColorInput(fullHexValue);
           this.colorManager.updateColorPickerBackground(colorInput, fullHexValue);
+          this.labelManager.updateAllLabelColors();
           event.target.dataset.lastValidValue = hexValue.toUpperCase();
           this.colorManager.saveState();
         }
@@ -125,6 +131,8 @@ class ModeToggle {
         }
       });
     }
+
+
   }
 
   updateAllModeHexInput(color) {

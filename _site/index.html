@@ -42,6 +42,15 @@
       <path id="segment-4" d="M241.305 77.5813L365.512 118.753C343.855 130.496 329.15 153.422 329.15 179.781C329.15 204.315 341.889 225.875 361.116 238.211L241.878 279.556C245.559 247.599 247.4 214.726 247.4 180.936C247.4 146.186 245.368 111.734 241.305 77.5813Z" fill="#837C67"/>
       <path id="segment-5" d="M127.095 39.106L228.72 72.7921C232.881 108.478 234.962 144.282 234.962 180.205C234.962 214.777 233.035 249.079 229.181 283.11L127.43 318.392C134.828 274.17 138.527 228.108 138.527 180.205C138.527 133.302 134.826 86.9424 127.424 41.1269L127.095 39.106Z" fill="#837C67"/>
       <path id="segment-6" d="M12.7159 0L115.049 33.9208C122.66 82.0716 126.466 130.44 126.466 179.025C126.466 227.01 122.754 274.475 115.329 321.42L12.7159 357C4.91476 317.555 0.975189 258.724 0.895996 180.508V178.131C0.895996 98.7291 4.83596 39.3519 12.7159 0Z" fill="#837C67"/>
+      
+      <!-- Vertical Labels -->
+      <text id="label-segment-1" x="750" y="178" transform="rotate(-90 750 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">1</text>
+      <text id="label-segment-2" x="650" y="178" transform="rotate(-90 650 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">2</text>
+      <text id="label-segment-3" x="550" y="178" transform="rotate(-90 550 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">3</text>
+      <text id="label-segment-middle" x="400" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">middle</text>
+      <text id="label-segment-4" x="250" y="178" transform="rotate(90 250 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">4</text>
+      <text id="label-segment-5" x="150" y="178" transform="rotate(90 150 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">5</text>
+      <text id="label-segment-6" x="50" y="178" transform="rotate(90 50 178)" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">6</text>
     </svg>
       
 
@@ -81,11 +90,19 @@
                         <span class="text-xs text-gray-500 font-mono px-2 py-1 border-r border-gray-300 bg-gray-100">#</span>
                         <input 
                           type="text" 
-                          class="hex-input w-14 h-6 text-xs text-center font-mono border-0 bg-transparent px-1 focus:outline-none"
+                          class="hex-input w-14 h-6 text-xs text-center font-mono border-0 bg-transparent px-1 focus:outline-none text-black"
                           placeholder="000000"
                           data-segment-id=""
                         />
                       </div>
+                    </div>
+                    <div class="flex items-center justify-center mt-2">
+                      <input 
+                        type="text" 
+                        class="label-input w-20 h-6 text-xs text-center border border-gray-300 rounded px-1 focus:outline-none focus:border-blue-500 text-black"
+                        placeholder="Label"
+                        data-segment-id=""
+                      />
                     </div>
                   </div>
                 </div>

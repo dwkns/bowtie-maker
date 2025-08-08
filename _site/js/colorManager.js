@@ -72,6 +72,11 @@ class ColorManager {
         this.updateColorPickerBackground(colorInput, newColor);
       }
     }
+    
+    // Update label color for optimal readability
+    if (window.labelManager) {
+      window.labelManager.updateLabelColor(segmentId, newColor);
+    }
   }
 
   // Update all segments with the same color

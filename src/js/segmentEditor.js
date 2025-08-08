@@ -2,8 +2,9 @@
 import ColorManager from './colorManager.js';
 
 class SegmentEditor {
-  constructor(colorManager) {
+  constructor(colorManager, labelManager) {
     this.colorManager = colorManager;
+    this.labelManager = labelManager;
     this.template = document.getElementById('segment-editor-template');
   }
 
@@ -28,8 +29,8 @@ class SegmentEditor {
     flexContainer.style.margin = '0 auto';
     flexContainer.style.gap = '40px';
     
-    // Sort segments in visual order (left to right)
-    const segmentOrder = ['segment-6', 'segment-5', 'segment-4', 'segment-middle', 'segment-3', 'segment-2', 'segment-1'];
+    // Sort segments in visual order (left to right, top to bottom)
+    const segmentOrder = ['segment-1', 'segment-2', 'segment-3', 'segment-middle', 'segment-4', 'segment-5', 'segment-6'];
     const sortedSegments = Array.from(segments).sort((a, b) => {
       const aIndex = segmentOrder.indexOf(a.id);
       const bIndex = segmentOrder.indexOf(b.id);
@@ -37,7 +38,7 @@ class SegmentEditor {
     });
     
     // Generate editor for each segment
-    sortedSegments.forEach(segment => {
+    sortedSegments.forEach((segment, index) => {
       const segmentId = segment.id;
       const currentColor = segment.getAttribute('fill');
       
@@ -48,6 +49,7 @@ class SegmentEditor {
       if (colorInput) {
         colorInput.value = currentColor;
         colorInput.setAttribute('data-segment-id', segmentId);
+        colorInput.setAttribute('tabindex', (index + 1).toString());
         this.colorManager.updateColorPickerBackground(colorInput, currentColor);
       }
       
@@ -57,7 +59,17 @@ class SegmentEditor {
         const hexValue = currentColor.toUpperCase().replace('#', '');
         hexInput.value = hexValue;
         hexInput.setAttribute('data-segment-id', segmentId);
+        hexInput.setAttribute('tabindex', (index + 8).toString()); // After all color pickers
         hexInput.dataset.lastValidValue = hexValue;
+      }
+      
+      // Set up label input
+      const labelInput = editorContainer.querySelector('.label-input');
+      if (labelInput) {
+        const currentLabel = this.labelManager.getLabel(segmentId);
+        labelInput.value = currentLabel;
+        labelInput.setAttribute('data-segment-id', segmentId);
+        labelInput.setAttribute('tabindex', (index + 15).toString()); // After all hex inputs
       }
       
       // Set editor width and add data attributes
@@ -138,6 +150,15 @@ class SegmentEditor {
     }
   }
 
+  // Handle label input changes
+  handleLabelInputChange(event) {
+    const labelInput = event.target;
+    const segmentId = labelInput.dataset.segmentId;
+    const newLabel = labelInput.value.trim();
+    
+    this.labelManager.updateLabel(segmentId, newLabel);
+  }
+
   // Update revert button visibility
   updateRevertButtonVisibility() {
     const revertBtn = document.getElementById('revert-btn');
@@ -169,6 +190,13 @@ class SegmentEditor {
         this.handleHexInputBlur(e);
       }
     }, true);
+    
+    // Label input changes
+    document.addEventListener('input', (e) => {
+      if (e.target.classList.contains('label-input')) {
+        this.handleLabelInputChange(e);
+      }
+    });
   }
 }
 
