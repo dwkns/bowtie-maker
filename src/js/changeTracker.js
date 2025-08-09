@@ -10,7 +10,7 @@ class ChangeTracker {
   }
 
   initializeOriginalState() {
-    // Store original colors
+    // Store original colors for segments
     const segments = document.querySelectorAll('[id^="segment-"]');
     segments.forEach(segment => {
       const segmentId = segment.id;
@@ -19,10 +19,14 @@ class ChangeTracker {
       this.currentColors[segmentId] = originalColor;
     });
 
-    // Store original labels and text content
+    // Store original colors for text elements
     const textElements = document.querySelectorAll('[id^="label-segment-"], [id^="title-"]');
     textElements.forEach(textElement => {
       const elementId = textElement.id;
+      const originalColor = textElement.getAttribute('fill') || '#333333';
+      this.originalColors[elementId] = originalColor;
+      this.currentColors[elementId] = originalColor;
+      
       const tspan = textElement.querySelector('tspan');
       const originalText = tspan ? tspan.textContent : textElement.textContent;
       
@@ -36,6 +40,15 @@ class ChangeTracker {
         this.originalLabels[segmentId] = originalText;
         this.currentLabels[segmentId] = originalText;
       }
+    });
+
+    // Store original colors for line elements
+    const lineElements = document.querySelectorAll('[id^="line-"]');
+    lineElements.forEach(lineElement => {
+      const elementId = lineElement.id;
+      const originalColor = lineElement.getAttribute('stroke') || '#858484';
+      this.originalColors[elementId] = originalColor;
+      this.currentColors[elementId] = originalColor;
     });
   }
 
@@ -85,12 +98,21 @@ class ChangeTracker {
   }
 
   resetToOriginal() {
-    // Reset colors to original
-    Object.keys(this.originalColors).forEach(segmentId => {
-      const segment = document.getElementById(segmentId);
-      if (segment) {
-        segment.setAttribute('fill', this.originalColors[segmentId]);
-        this.currentColors[segmentId] = this.originalColors[segmentId];
+    // Reset colors to original (for segments, text elements, and line elements)
+    Object.keys(this.originalColors).forEach(elementId => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        if (elementId.startsWith('segment-')) {
+          // Reset segment fill color
+          element.setAttribute('fill', this.originalColors[elementId]);
+        } else if (elementId.startsWith('label-segment-') || elementId.startsWith('title-')) {
+          // Reset text element fill color
+          element.setAttribute('fill', this.originalColors[elementId]);
+        } else if (elementId.startsWith('line-')) {
+          // Reset line stroke color
+          element.setAttribute('stroke', this.originalColors[elementId]);
+        }
+        this.currentColors[elementId] = this.originalColors[elementId];
       }
     });
 
@@ -149,11 +171,20 @@ class ChangeTracker {
     if (savedColors) {
       try {
         const colors = JSON.parse(savedColors);
-        Object.keys(colors).forEach(segmentId => {
-          const segment = document.getElementById(segmentId);
-          if (segment) {
-            segment.setAttribute('fill', colors[segmentId]);
-            this.currentColors[segmentId] = colors[segmentId];
+        Object.keys(colors).forEach(elementId => {
+          const element = document.getElementById(elementId);
+          if (element) {
+            if (elementId.startsWith('segment-')) {
+              // Load segment fill color
+              element.setAttribute('fill', colors[elementId]);
+            } else if (elementId.startsWith('label-segment-') || elementId.startsWith('title-')) {
+              // Load text element fill color
+              element.setAttribute('fill', colors[elementId]);
+            } else if (elementId.startsWith('line-')) {
+              // Load line stroke color
+              element.setAttribute('stroke', colors[elementId]);
+            }
+            this.currentColors[elementId] = colors[elementId];
           }
         });
       } catch (e) {

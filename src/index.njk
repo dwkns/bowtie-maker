@@ -4,7 +4,7 @@ title: SVG Editor
 ---
 
 <!-- Header with title and buttons -->
-<div  class="flex justify-between items-center mb-8">
+<div class="flex justify-between items-center mb-8">
   <h1 class="text-3xl font-bold text-gray-800">SVG Editor</h1>
   <div class="flex items-center space-x-3">
     <button
@@ -74,8 +74,8 @@ title: SVG Editor
     <div id="svg-container" class="flex justify-center">
       <svg
         width="800"
-        height="506"
-        viewBox="0 0 800 506"
+        height="530"
+        viewBox="0 0 800 530"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -222,34 +222,42 @@ title: SVG Editor
 
         <!-- Connecting Lines -->
         <path
+          id="line-top-left"
           d="M360 60V35H13V60"
           stroke="#858484"
           stroke-linecap="square"
           stroke-dasharray="6 6"
+          style="cursor: pointer;"
         />
         <path
+          id="line-top-right"
           d="M787 60V35H440V60"
           stroke="#858484"
           stroke-linecap="square"
           stroke-dasharray="6 6"
+          style="cursor: pointer;"
         />
         <path
+          id="line-bottom-left"
           d="M360 446V471H13V446"
           stroke="#858484"
           stroke-linecap="square"
           stroke-dasharray="6 6"
+          style="cursor: pointer;"
         />
         <path
+          id="line-bottom-right"
           d="M787 446V471H440V446"
           stroke="#858484"
           stroke-linecap="square"
           stroke-dasharray="6 6"
+          style="cursor: pointer;"
         />
       </svg>
-    </div>
   </div>
+</div>
 
-  <!-- Right Column - Contextual Edit Box -->
+<!-- Right Column - Contextual Edit Box -->
   <div class="w-80">
     <div
       id="contextual-edit-box"

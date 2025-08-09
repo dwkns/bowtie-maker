@@ -6,6 +6,8 @@ class ContextualEditor {
     this.colorManager = colorManager;
     this.labelManager = labelManager;
     this.currentSegmentId = null;
+    this.isTextElement = false;
+    this.isLineElement = false;
     this.initialize();
   }
 
@@ -22,6 +24,7 @@ class ContextualEditor {
       // Add click handlers to all segments and text elements
       const segments = svgContainer.querySelectorAll('[id^="segment-"]');
       const textElements = svgContainer.querySelectorAll('[id^="label-segment-"], [id^="title-"]');
+      const lines = svgContainer.querySelectorAll('[id^="line-"]');
       
       segments.forEach(segment => {
         segment.style.cursor = 'pointer';
@@ -44,6 +47,13 @@ class ContextualEditor {
             // If it's not associated with a segment (like title elements), select the text element
             this.selectTextElement(textElement.id);
           }
+        });
+      });
+      
+      lines.forEach(line => {
+        line.addEventListener('click', (event) => {
+          event.stopPropagation();
+          this.selectLine(line.id);
         });
       });
     }
@@ -97,6 +107,7 @@ class ContextualEditor {
     
     this.currentSegmentId = segmentId;
     this.isTextElement = false;
+    this.isLineElement = false;
     this.populateEditBox(segmentId);
     this.highlightSegment(segmentId);
     this.enableControls();
@@ -109,8 +120,22 @@ class ContextualEditor {
     
     this.currentSegmentId = textElementId;
     this.isTextElement = true;
+    this.isLineElement = false;
     this.populateEditBox(textElementId);
     this.highlightTextElement(textElementId);
+    this.enableControls();
+    this.focusLabelInput();
+  }
+
+  selectLine(lineId) {
+    // Clear previous selection
+    this.clearSegmentHighlight();
+    
+    this.currentSegmentId = lineId;
+    this.isTextElement = false;
+    this.isLineElement = true;
+    this.populateEditBox(lineId);
+    this.highlightLine(lineId);
     this.enableControls();
     this.focusLabelInput();
   }
@@ -148,8 +173,8 @@ class ContextualEditor {
         textElement.parentNode.appendChild(underline);
       }
       
-      // Position the underline below the text
-      const underlineY = bbox.y + bbox.height + 4; // 4px below the text
+      // Position the underline below the text, ensuring it's within the SVG bounds
+      const underlineY = Math.min(bbox.y + bbox.height + 4, 525); // 4px below the text, but not beyond SVG bounds
       
       underline.setAttribute('x1', bbox.x);
       underline.setAttribute('y1', underlineY);
@@ -158,9 +183,20 @@ class ContextualEditor {
     }
   }
 
+  highlightLine(lineId) {
+    const lineElement = document.getElementById(lineId);
+    if (lineElement) {
+      // Add a glow effect and increase stroke width to show selection
+      // without changing the line color
+      lineElement.style.strokeWidth = '3';
+      lineElement.style.filter = 'drop-shadow(0 0 4px #FF6600)';
+    }
+  }
+
   clearSegmentHighlight() {
     const allSegments = document.querySelectorAll('[id^="segment-"]');
     const allTextElements = document.querySelectorAll('[id^="label-segment-"], [id^="title-"]');
+    const allLines = document.querySelectorAll('[id^="line-"]');
     
     allSegments.forEach(segment => {
       segment.style.stroke = '';
@@ -170,6 +206,11 @@ class ContextualEditor {
     allTextElements.forEach(textElement => {
       textElement.style.stroke = '';
       textElement.style.strokeWidth = '';
+    });
+    
+    allLines.forEach(line => {
+      line.style.strokeWidth = '';
+      line.style.filter = '';
     });
     
     // Remove the underline
@@ -211,6 +252,10 @@ class ContextualEditor {
       // Get text content from tspan if it exists, otherwise from element
       const tspan = element.querySelector('tspan');
       currentLabel = (tspan ? tspan.textContent : element.textContent || '').trim();
+    } else if (this.isLineElement) {
+      // Handle line elements
+      currentColor = element.getAttribute('stroke') || '#858484';
+      currentLabel = ''; // Lines don't have labels
     } else {
       // Handle segment elements - look for corresponding label element
       currentColor = element.getAttribute('fill');
@@ -283,6 +328,12 @@ class ContextualEditor {
       if (window.changeTracker) {
         window.changeTracker.updateColor(this.currentSegmentId, newColor);
       }
+    } else if (this.isLineElement) {
+      // Update line color
+      const lineElement = document.getElementById(this.currentSegmentId);
+      if (lineElement) {
+        lineElement.setAttribute('stroke', newColor);
+      }
     } else {
       // Update segment color
       this.colorManager.updateSegmentColor(this.currentSegmentId, newColor);
@@ -320,6 +371,12 @@ class ContextualEditor {
         if (window.changeTracker) {
           window.changeTracker.updateColor(this.currentSegmentId, fullHexValue);
         }
+      } else if (this.isLineElement) {
+        // Update line color
+        const lineElement = document.getElementById(this.currentSegmentId);
+        if (lineElement) {
+          lineElement.setAttribute('stroke', fullHexValue);
+        }
       } else {
         // Update segment color
         this.colorManager.updateSegmentColor(this.currentSegmentId, fullHexValue);
@@ -355,6 +412,12 @@ class ContextualEditor {
           // Notify change tracker
           if (window.changeTracker) {
             window.changeTracker.updateColor(this.currentSegmentId, fullHexValue);
+          }
+        } else if (this.isLineElement) {
+          // Update line color
+          const lineElement = document.getElementById(this.currentSegmentId);
+          if (lineElement) {
+            lineElement.setAttribute('stroke', fullHexValue);
           }
         } else {
           // Update segment color
